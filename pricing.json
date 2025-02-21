@@ -1,0 +1,169 @@
+{
+  "gpt-4": {
+    "input": {
+      "8k context": "$0.03 / 1K tokens",
+      "32k context": "$0.06 / 1K tokens"
+    },
+    "output": {
+      "8k context": "$0.06 / 1K tokens",
+      "32k context": "$0.12 / 1K tokens"
+    }
+  },
+  "gpt-4-turbo": {
+    "input": {
+      "128k context": "$0.01 / 1K tokens"
+    },
+    "output": {
+      "128k context": "$0.03 / 1K tokens"
+    }
+  },
+  "gpt-3.5-turbo": {
+    "input": {
+      "4k context": "$0.0005 / 1K tokens",
+      "16k context": "$0.001 / 1K tokens"
+    },
+    "output": {
+      "4k context": "$0.0015 / 1K tokens",
+      "16k context": "$0.002 / 1K tokens"
+    }
+  },
+  "gpt-4o": {
+    "versions": {
+      "gpt-4o-2024-08-06": {
+        "input": "$0.0025 / 1K tokens",
+        "cached_input": "$0.00125 / 1K tokens",
+        "output": "$0.01 / 1K tokens"
+      },
+      "gpt-4o-2024-11-20": {
+        "input": "$0.0025 / 1K tokens",
+        "cached_input": "$0.00125 / 1K tokens",
+        "output": "$0.01 / 1K tokens"
+      },
+      "gpt-4o-2024-05-13": {
+        "input": "$0.005 / 1K tokens",
+        "output": "$0.015 / 1K tokens"
+      }
+    }
+  },
+  "gpt-4o-audio-preview": {
+    "versions": {
+      "gpt-4o-audio-preview-2024-12-17": {
+        "input": "$0.0025 / 1K tokens",
+        "output": "$0.01 / 1K tokens"
+      },
+      "gpt-4o-audio-preview-2024-10-01": {
+        "input": "$0.0025 / 1K tokens",
+        "output": "$0.01 / 1K tokens"
+      }
+    }
+  },
+  "gpt-4o-realtime-preview": {
+    "versions": {
+      "gpt-4o-realtime-preview-2024-12-17": {
+        "input": "$0.005 / 1K tokens",
+        "cached_input": "$0.0025 / 1K tokens",
+        "output": "$0.02 / 1K tokens"
+      },
+      "gpt-4o-realtime-preview-2024-10-01": {
+        "input": "$0.005 / 1K tokens",
+        "cached_input": "$0.0025 / 1K tokens",
+        "output": "$0.02 / 1K tokens"
+      }
+    }
+  },
+  "gpt-4o-mini": {
+    "versions": {
+      "gpt-4o-mini-2024-07-18": {
+        "input": "$0.00015 / 1K tokens",
+        "cached_input": "$0.000075 / 1K tokens",
+        "output": "$0.0006 / 1K tokens"
+      }
+    }
+  },
+  "gpt-4o-mini-audio-preview": {
+    "versions": {
+      "gpt-4o-mini-audio-preview-2024-12-17": {
+        "input": "$0.00015 / 1K tokens",
+        "output": "$0.0006 / 1K tokens"
+      }
+    }
+  },
+  "gpt-4o-mini-realtime-preview": {
+    "versions": {
+      "gpt-4o-mini-realtime-preview-2024-12-17": {
+        "input": "$0.0006 / 1K tokens",
+        "cached_input": "$0.0003 / 1K tokens",
+        "output": "$0.0024 / 1K tokens"
+      }
+    }
+  },
+  "o1": {
+    "versions": {
+      "o1-2024-12-17": {
+        "input": "$0.015 / 1K tokens",
+        "cached_input": "$0.0075 / 1K tokens",
+        "output": "$0.06 / 1K tokens"
+      },
+      "o1-preview-2024-09-12": {
+        "input": "$0.015 / 1K tokens",
+        "cached_input": "$0.0075 / 1K tokens",
+        "output": "$0.06 / 1K tokens"
+      }
+    }
+  },
+  "o3-mini": {
+    "versions": {
+      "o3-mini-2025-01-31": {
+        "input": "$0.0011 / 1K tokens",
+        "cached_input": "$0.00055 / 1K tokens",
+        "output": "$0.0044 / 1K tokens"
+      }
+    }
+  },
+  "o1-mini": {
+    "versions": {
+      "o1-mini-2024-09-12": {
+        "input": "$0.0011 / 1K tokens",
+        "cached_input": "$0.00055 / 1K tokens",
+        "output": "$0.0044 / 1K tokens"
+      }
+    }
+  },
+  "embedding-models": {
+    "text-embedding-3-small": "$0.00002 / 1K tokens",
+    "text-embedding-3-large": "$0.00013 / 1K tokens"
+  },
+  "image-models": {
+    "dall-e-3": {
+      "standard": {
+        "1024×1024": "$0.040 / image",
+        "1024×1792": "$0.080 / image",
+        "1792×1024": "$0.080 / image"
+      },
+      "hd": {
+        "1024×1024": "$0.080 / image",
+        "1024×1792": "$0.120 / image",
+        "1792×1024": "$0.120 / image"
+      }
+    },
+    "dall-e-2": {
+      "1024×1024": "$0.020 / image",
+      "512×512": "$0.018 / image",
+      "256×256": "$0.016 / image"
+    }
+  },
+  "audio-models": {
+    "whisper": "$0.006 / minute",
+    "tts-1": "$0.015 / 1K characters",
+    "tts-1-hd": "$0.030 / 1K characters"
+  },
+  "gpt-4-vision": {
+    "input": {
+      "with-images": {
+        "first-1k-tokens": "$0.01 / image",
+        "additional-tokens": "$0.03 / 1K tokens"
+      }
+    },
+    "output": "$0.03 / 1K tokens"
+  }
+} 
