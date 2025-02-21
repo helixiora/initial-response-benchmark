@@ -28,22 +28,8 @@
     }
   },
   "gpt-4o": {
-    "versions": {
-      "gpt-4o-2024-08-06": {
-        "input": "$0.0025 / 1K tokens",
-        "cached_input": "$0.00125 / 1K tokens",
-        "output": "$0.01 / 1K tokens"
-      },
-      "gpt-4o-2024-11-20": {
-        "input": "$0.0025 / 1K tokens",
-        "cached_input": "$0.00125 / 1K tokens",
-        "output": "$0.01 / 1K tokens"
-      },
-      "gpt-4o-2024-05-13": {
-        "input": "$0.005 / 1K tokens",
-        "output": "$0.015 / 1K tokens"
-      }
-    }
+    "input": "$0.0025 / 1K tokens",
+    "output": "$0.01 / 1K tokens"
   },
   "gpt-4o-audio-preview": {
     "versions": {
@@ -72,13 +58,8 @@
     }
   },
   "gpt-4o-mini": {
-    "versions": {
-      "gpt-4o-mini-2024-07-18": {
-        "input": "$0.00015 / 1K tokens",
-        "cached_input": "$0.000075 / 1K tokens",
-        "output": "$0.0006 / 1K tokens"
-      }
-    }
+    "input": "$0.00015 / 1K tokens",
+    "output": "$0.0006 / 1K tokens"
   },
   "gpt-4o-mini-audio-preview": {
     "versions": {

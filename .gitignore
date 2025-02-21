@@ -13,3 +13,4 @@ __pycache__/
 
 # Test results
 response_times.json 
+classifier_results.json
