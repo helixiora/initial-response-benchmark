@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 import json
 from typing import Dict, List
+import requests
 from transformers import pipeline
 from colorama import init, Fore, Back, Style
 from openai import OpenAI
@@ -25,6 +26,9 @@ classifier = pipeline(
     model="helixiora/distilbert-another-classifier",
     top_k=None,  # Return scores for all classes
 )
+
+# Ollama endpoint
+OLLAMA_ENDPOINT = "http://localhost:11434/api/generate"
 
 # Label mapping
 LABEL_DICT = {
@@ -160,6 +164,7 @@ MODELS = [
     # "gpt-4-turbo-preview",  # This is the current name for gpt-4-0125-preview
     "gpt-4o",
     "gpt-4o-mini",  # Added GPT-4o-mini for comparison
+    "mistral",  # Added Mistral model
 ]
 
 
@@ -275,6 +280,57 @@ def get_gpt_classification(question: str, model: str = "gpt-4o") -> Dict:
         }
 
 
+def get_mistral_classification(question: str) -> Dict:
+    """
+    Get classification from Mistral model using Ollama.
+    """
+    start_time = time.time()
+    try:
+        # Format the prompt
+        prompt = GPT_PROMPT_TEMPLATE.format(question=question)
+        debug_log(f"Calling Mistral with prompt: {prompt}")
+
+        # Call Ollama API
+        response = requests.post(
+            OLLAMA_ENDPOINT,
+            json={"model": "mistral", "prompt": prompt, "stream": False},
+        )
+        response.raise_for_status()
+        result = response.json()
+
+        # Get the predicted label from the response
+        predicted_label = result["response"].strip()
+
+        # Validate the response
+        if predicted_label not in LABEL_DICT.values():
+            raise ValueError(f"Invalid label returned: {predicted_label}")
+
+        end_time = time.time()
+        time_taken = end_time - start_time
+
+        debug_log(f"Mistral classification completed in {time_taken:.2f}s")
+        debug_log(f"Predicted label: {predicted_label}")
+
+        return {
+            "success": True,
+            "predicted_label": predicted_label,
+            "time_taken": time_taken,
+            "timestamp": datetime.now().isoformat(),
+            "model": "mistral",
+            "cost": 0,  # Local model has no API cost
+        }
+    except Exception as e:
+        end_time = time.time()
+        debug_log(f"Mistral Error: {str(e)}", Fore.RED)
+        return {
+            "success": False,
+            "error": str(e),
+            "time_taken": end_time - start_time,
+            "timestamp": datetime.now().isoformat(),
+            "model": "mistral",
+        }
+
+
 def calculate_cost(model: str, prompt: str, response: str) -> float:
     """Calculate the cost of a GPT API call"""
     costs = get_model_cost(model)
@@ -302,6 +358,10 @@ def get_model_cost(model: str) -> Dict:
         "gpt-4o-mini": {
             "input": 0.00015,  # $0.00015 per 1K tokens
             "output": 0.0006,  # $0.0006 per 1K tokens
+        },
+        "mistral": {
+            "input": 0,  # Local model has no per-token cost
+            "output": 0,
         },
     }
     return costs.get(model, costs["gpt-4-turbo-preview"])
@@ -462,12 +522,15 @@ def main():
         distilbert_result["test_case"] = test_case
         distilbert_results.append(distilbert_result)
 
-        # Get GPT classifications
+        # Get model classifications
         for model in MODELS:
             print(f"\n{Fore.YELLOW}{model} Classification:{Style.RESET_ALL}")
-            gpt_result = get_gpt_classification(question, model)
-            gpt_result["test_case"] = test_case
-            gpt_results[model].append(gpt_result)
+            if model == "mistral":
+                result = get_mistral_classification(question)
+            else:
+                result = get_gpt_classification(question, model)
+            result["test_case"] = test_case
+            gpt_results[model].append(result)
 
         # Print individual results
         print(f"\n{Fore.CYAN}Results Comparison:{Style.RESET_ALL}")
@@ -483,7 +546,7 @@ def main():
                 f"{distilbert_result['predicted_label']}{Style.RESET_ALL}"
             )
 
-        # Print GPT results
+        # Print model results
         for model in MODELS:
             result = gpt_results[model][-1]  # Get the latest result for this model
             if result["success"]:
