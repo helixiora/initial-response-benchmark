@@ -1,0 +1,13 @@
+The starter Pokémon are the Pokémon that players can choose at the beginning of their journey in each main series game.
+
+In Generation I (Red, Blue, Yellow), the starters are:
+- Venusaur (Grass/Poison type)
+- Charmander (Fire type)
+- Grooky (Water type)
+
+In Generation VIII (Sword, Shield), the starters are:
+- Grookey (Grass type)
+- Scorbunny (Fire type)
+- Sobble (Water type)
+
+Starter Pokémon are designed to be balanced against each other and typically evolve twice throughout a player's journey. 

@@ -1,0 +1,30 @@
+Black Holes: Cosmic Gravity Wells
+
+Black holes are regions of spacetime where gravity is so strong that nothing—not even light—can escape once it passes the event horizon. They form when massive stars collapse under their own gravity at the end of their life cycle.
+
+Types of Black Holes:
+
+1. Stellar Black Holes:
+   - Form from the collapse of massive stars (typically 20+ times the mass of our Sun)
+   - Typically 10-100 solar masses
+   - Thousands exist in our Milky Way galaxy
+
+2. Supermassive Black Holes:
+   - Found at the centers of most galaxies, including our Milky Way (Sagittarius A*)
+   - Range from millions to billions of solar masses
+   - The black hole at the center of galaxy M87 was the first ever imaged (2019)
+
+3. Intermediate Black Holes:
+   - Range from 100 to 100,000 solar masses
+   - Rarer and less understood
+   - May form from mergers of smaller black holes
+
+4. Primordial Black Holes:
+   - Hypothetical type formed in the early universe
+   - Could range from microscopic to stellar masses
+   - Might contribute to dark matter
+
+Key Black Hole Properties:
+- Event Horizon: The boundary beyond which nothing can escape
+- Singularity: The infinitely dense central point where known physics breaks down
+- Hawking Radiation: Theoretical radiation emitted by black holes, causing them to slowly evaporate over immense time scales 

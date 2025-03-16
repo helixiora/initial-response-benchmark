@@ -1,0 +1,24 @@
+Pokémon Types and Type Effectiveness
+
+There are 18 different types in the Pokémon games, each with its own strengths and weaknesses:
+
+1. Normal: Weak to Fighting, immune to Ghost
+2. Fire: Strong against Grass, Bug, Ice, Steel; weak to Water, Ground, Rock
+3. Water: Strong against Fire, Ground, Rock; weak to Electric, Grass
+4. Electric: Strong against Water, Flying; weak to Ground
+5. Grass: Strong against Water, Ground, Rock; weak to Fire, Ice, Poison, Flying, Bug
+6. Ice: Strong against Grass, Ground, Flying, Dragon; weak to Fire, Fighting, Rock, Steel
+7. Fighting: Strong against Normal, Ice, Rock, Dark, Steel; weak to Flying, Psychic, Fairy
+8. Poison: Strong against Grass, Fairy; weak to Ground, Psychic
+9. Ground: Strong against Fire, Electric, Poison, Rock, Steel; weak to Water, Grass, Ice
+10. Flying: Strong against Grass, Fighting, Bug; weak to Electric, Ice, Rock
+11. Psychic: Strong against Fighting, Poison; weak to Bug, Ghost, Dark
+12. Bug: Strong against Grass, Psychic, Dark; weak to Fire, Flying, Rock
+13. Rock: Strong against Fire, Ice, Flying, Bug; weak to Water, Grass, Fighting, Ground, Steel
+14. Ghost: Strong against Psychic, Ghost; weak to Ghost, Dark
+15. Dragon: Strong against Dragon; weak to Ice, Dragon, Fairy
+16. Dark: Strong against Psychic, Ghost; weak to Fighting, Bug, Fairy
+17. Steel: Strong against Ice, Rock, Fairy; weak to Fire, Fighting, Ground
+18. Fairy: Strong against Fighting, Dragon, Dark; weak to Poison, Steel
+
+Many Pokémon have dual types, which can create unique combinations of strengths and weaknesses. 

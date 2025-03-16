@@ -1,0 +1,26 @@
+Galaxies: Cosmic Island Universes
+
+Galaxies are vast collections of stars, gas, dust, and dark matter bound together by gravity. They come in various shapes and sizes:
+
+1. Spiral Galaxies:
+   - Characterized by flat, rotating disks with spiral arms
+   - Our Milky Way is a barred spiral galaxy
+   - Examples: Andromeda Galaxy (M31), Whirlpool Galaxy (M51)
+
+2. Elliptical Galaxies:
+   - Smooth, oval-shaped galaxies without distinct features
+   - Contain mostly older stars and little gas or dust
+   - Range from nearly spherical (E0) to highly elongated (E7)
+   - Examples: M87 in Virgo Cluster, Maffei 1
+
+3. Irregular Galaxies:
+   - Lack defined structure or symmetry
+   - Often result from gravitational interactions with other galaxies
+   - Examples: Large and Small Magellanic Clouds
+
+4. Lenticular Galaxies:
+   - Intermediate between spiral and elliptical
+   - Have a disk but no spiral arms
+   - Example: NGC 5866
+
+The observable universe contains an estimated 100-200 billion galaxies, each potentially containing billions of stars. Galaxies are often found in groups or clusters, with our Milky Way being part of the Local Group. 

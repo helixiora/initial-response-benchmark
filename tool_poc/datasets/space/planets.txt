@@ -1,0 +1,21 @@
+Planets of Our Solar System
+
+Our solar system consists of eight recognized planets orbiting the Sun:
+
+1. Mercury: The smallest and innermost planet, with a rocky surface covered in craters. It has no atmosphere and experiences extreme temperature variations.
+
+2. Venus: Similar in size to Earth but covered in a thick toxic atmosphere of carbon dioxide with clouds of sulfuric acid. It's the hottest planet due to a runaway greenhouse effect.
+
+3. Earth: The only known planet to support life, with a nitrogen-oxygen atmosphere and liquid water covering 71% of its surface.
+
+4. Mars: Known as the "Red Planet" due to iron oxide on its surface. It has polar ice caps, extinct volcanoes, and evidence of ancient water flows.
+
+5. Jupiter: The largest planet, a gas giant composed mainly of hydrogen and helium with a distinctive Great Red Spot storm system.
+
+6. Saturn: Famous for its extensive ring system composed of ice particles, rock debris, and dust.
+
+7. Uranus: An ice giant that uniquely rotates on its side, with a blue-green color due to methane in its atmosphere.
+
+8. Neptune: The windiest planet with the strongest storms in the solar system, appearing deep blue due to atmospheric methane.
+
+Pluto was reclassified as a dwarf planet in 2006 by the International Astronomical Union. 
