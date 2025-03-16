@@ -15,3 +15,5 @@ __pycache__/
 response_times.json 
 classifier_results.json
 chain_of_thought_results.json
+tool_poc/dataset_info.json
+tool_poc/vector_config.json

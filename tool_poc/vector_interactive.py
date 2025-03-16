@@ -10,6 +10,7 @@ import time
 import sys
 import argparse
 import re
+import readline
 from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone
@@ -64,9 +65,6 @@ class Symbols:
     CLOCK = "🕒 "
     CHECK = "✓ "
     CROSS = "✗ "
-    POKEMON = "🎮 "
-    SPACE = "🌌 "
-    HISTORY = "📜 "
     FILE = "📄 "
     FOLDER = "📁 "
     DATABASE = "🗄️ "
@@ -89,54 +87,32 @@ def load_vector_config() -> Dict[str, Any]:
     return config
 
 
-def load_dataset_metadata(datasets_dir: str) -> List[Dict[str, Any]]:
-    """Load metadata for all datasets."""
-    datasets = []
+def load_dataset_info() -> List[Dict[str, Any]]:
+    """Load dataset information from the JSON file."""
+    info_path = os.path.join(os.path.dirname(__file__), "dataset_info.json")
 
-    # Get all subdirectories in the datasets directory
-    dataset_dirs = [
-        d
-        for d in os.listdir(datasets_dir)
-        if os.path.isdir(os.path.join(datasets_dir, d))
-    ]
+    if not os.path.exists(info_path):
+        print(
+            f"{Symbols.ERROR}{Colors.RED}Dataset info file not found. Please run vector_setup.py first.{Colors.ENDC}"
+        )
+        exit(1)
 
-    for dataset_dir in dataset_dirs:
-        dataset_path = os.path.join(datasets_dir, dataset_dir)
-        metadata_path = os.path.join(dataset_path, "metadata.json")
+    with open(info_path, "r") as f:
+        dataset_info = json.load(f)
 
-        if os.path.exists(metadata_path):
-            with open(metadata_path, "r") as f:
-                metadata = json.load(f)
-
-            # Add path to metadata
-            metadata["path"] = dataset_path
-            datasets.append(metadata)
-
-    return datasets
+    return dataset_info
 
 
 def create_tools(datasets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Create tool definitions for OpenAI API."""
+    """Create tool definitions for OpenAI API using dataset info."""
     tools = []
 
     for dataset in datasets:
-        # Create more explicit tool descriptions
-        if dataset["name"] == "Pokemon":
-            description = "Use this tool for any questions about Pokemon, including starter Pokemon, legendary Pokemon, Pokemon types, and type effectiveness."
-        elif dataset["name"] == "Space":
-            description = "Use this tool for any questions about space, astronomy, planets, galaxies, black holes, and other celestial objects."
-        elif dataset["name"] == "History":
-            description = "Use this tool for any questions about historical periods, including Ancient Rome, the Renaissance, and the Industrial Revolution."
-        else:
-            description = (
-                f"Use this tool to answer questions about {dataset['description']}"
-            )
-
         tool = {
             "type": "function",
             "function": {
                 "name": f"get_{dataset['name'].lower()}_info",
-                "description": description,
+                "description": dataset["tool_description"],
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -157,14 +133,8 @@ def create_tools(datasets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 def get_dataset_symbol(dataset_name: str) -> str:
     """Get the appropriate symbol for a dataset."""
-    if dataset_name.lower() == "pokemon":
-        return Symbols.POKEMON
-    elif dataset_name.lower() == "space":
-        return Symbols.SPACE
-    elif dataset_name.lower() == "history":
-        return Symbols.HISTORY
-    else:
-        return Symbols.BOOK
+    # Use a generic book symbol for all datasets
+    return Symbols.BOOK
 
 
 def create_embedding(text: str, model: str = "text-embedding-3-small") -> List[float]:
@@ -236,16 +206,52 @@ def format_vector_results(results: List[Dict[str, Any]]) -> Tuple[str, Set[str]]
     return "\n".join(formatted_text), source_files
 
 
-def process_query(query: str, model: str = "gpt-4o", verbose: bool = False):
+def safe_json_parse(json_str: str) -> Dict[str, Any]:
+    """
+    Safely parse JSON from LLM responses, handling common issues like trailing commas.
+
+    Args:
+        json_str: The string containing JSON to parse
+
+    Returns:
+        Parsed JSON as a dictionary
+    """
+    # Try to extract JSON if it's wrapped in markdown code blocks
+    json_match = re.search(r"```(?:json)?\s*(.*?)\s*```", json_str, re.DOTALL)
+    if json_match:
+        json_str = json_match.group(1)
+
+    # Clean up common JSON issues
+    # 1. Remove trailing commas in objects and arrays
+    json_str = re.sub(r",\s*}", "}", json_str)
+    json_str = re.sub(r",\s*]", "]", json_str)
+
+    # 2. Try to extract just the JSON object if there's text around it
+    json_object_match = re.search(r"({.*})", json_str, re.DOTALL)
+    if json_object_match:
+        json_str = json_object_match.group(1)
+
+    # Parse the JSON
+    try:
+        return json.loads(json_str)
+    except json.JSONDecodeError as e:
+        print(
+            f"{Symbols.WARNING}{Colors.YELLOW}JSON parsing error: {str(e)}{Colors.ENDC}"
+        )
+        print(f"{Symbols.INFO}{Colors.CYAN}Problematic JSON: {json_str}{Colors.ENDC}")
+        # Return empty dict as fallback
+        return {}
+
+
+def process_query(query: str, model: str = "gpt-4o-mini", verbose: bool = False):
     """Process a user query using dataset tools and vector search."""
     # Load vector database config
     config = load_vector_config()
     index_name = config["pinecone_index"]
     embedding_model = config["embedding_model"]
 
-    # Load datasets metadata (just for tool definitions)
-    datasets_dir = os.path.join(os.path.dirname(__file__), "datasets")
-    datasets = load_dataset_metadata(datasets_dir)
+    # Load dataset information
+    datasets = load_dataset_info()
 
     # Create tools
     tools = create_tools(datasets)
@@ -287,8 +293,9 @@ def process_query(query: str, model: str = "gpt-4o", verbose: bool = False):
             f"{Symbols.THINKING}{Colors.YELLOW}Asking model which tool to use...{Colors.ENDC}"
         )
 
+    # Always use gpt-4o-mini regardless of the model parameter
     response = openai_client.chat.completions.create(
-        model=model, messages=messages, tools=tools, tool_choice="auto"
+        model="gpt-4o-mini", messages=messages, tools=tools, tool_choice="auto"
     )
 
     tool_calls = response.choices[0].message.tool_calls
@@ -300,14 +307,26 @@ def process_query(query: str, model: str = "gpt-4o", verbose: bool = False):
                 f"{Symbols.ERROR}{Colors.RED}No tool calls made. Elapsed time: {elapsed_time:.2f} seconds{Colors.ENDC}"
             )
         return (
-            f"{Symbols.ERROR} I couldn't determine which dataset to use for your question. Please try asking about Pokemon, Space, or History.",
+            f"{Symbols.ERROR} I couldn't determine which dataset to use for your question. Please try asking about one of our available datasets: {', '.join([d['name'] for d in datasets])}.",
             set(),
         )
 
     # Step 2: Execute the tool call
     tool_call = tool_calls[0]
     function_name = tool_call.function.name
-    function_args = json.loads(tool_call.function.arguments)
+
+    # Safely parse the function arguments
+    try:
+        function_args = safe_json_parse(tool_call.function.arguments)
+    except Exception as e:
+        if verbose:
+            print(
+                f"{Symbols.ERROR}{Colors.RED}Error parsing function arguments: {str(e)}{Colors.ENDC}"
+            )
+            print(
+                f"{Symbols.INFO}{Colors.CYAN}Raw arguments: {tool_call.function.arguments}{Colors.ENDC}"
+            )
+        function_args = {}
 
     # Find the dataset
     dataset_name = function_name.split("_")[1].capitalize()
@@ -397,7 +416,7 @@ def process_query(query: str, model: str = "gpt-4o", verbose: bool = False):
     )
 
     final_response = openai_client.chat.completions.create(
-        model=model,
+        model="gpt-4o-mini",
         messages=messages,
         temperature=0.0,  # Use lower temperature for more deterministic responses
     )
@@ -429,7 +448,7 @@ def process_query(query: str, model: str = "gpt-4o", verbose: bool = False):
     ]
 
     validation_response = openai_client.chat.completions.create(
-        model=model, messages=validation_messages, temperature=0.0
+        model="gpt-4o-mini", messages=validation_messages, temperature=0.0
     )
 
     validation_result = validation_response.choices[0].message.content
@@ -459,7 +478,7 @@ def process_query(query: str, model: str = "gpt-4o", verbose: bool = False):
         )
 
         corrected_response = openai_client.chat.completions.create(
-            model=model, messages=messages, temperature=0.0
+            model="gpt-4o-mini", messages=messages, temperature=0.0
         )
 
         answer = corrected_response.choices[0].message.content
@@ -482,22 +501,35 @@ def interactive_mode(verbose=False):
         f"{Symbols.INFO} Type '{Colors.CYAN}exit{Colors.ENDC}' or '{Colors.CYAN}quit{Colors.ENDC}' to end the session."
     )
     print(
-        f"{Symbols.INFO} Type '{Colors.CYAN}model <name>{Colors.ENDC}' to change the OpenAI model."
-    )
-    print(
         f"{Symbols.INFO} Type '{Colors.CYAN}verbose{Colors.ENDC}' to toggle verbose mode."
     )
     print(f"{Colors.BOLD}{Colors.HEADER}{'=' * 80}{Colors.ENDC}\n")
 
     # Default settings
-    model = "gpt-4o"
+    model = "gpt-4o-mini"
     verbose_mode = verbose
+
+    # Set up command history
+    history_file = os.path.join(os.path.expanduser("~"), ".vector_interactive_history")
+    try:
+        readline.read_history_file(history_file)
+        # Set history file size
+        readline.set_history_length(1000)
+    except FileNotFoundError:
+        # History file doesn't exist yet
+        pass
+
+    # Save history on exit
+    import atexit
+
+    atexit.register(readline.write_history_file, history_file)
 
     # Print initial info
     print(f"{Symbols.ROCKET} Using model: {Colors.GREEN}{model}{Colors.ENDC}")
     print(
         f"{Symbols.INFO} Verbose mode: {Colors.GREEN if verbose_mode else Colors.RED}{'on' if verbose_mode else 'off'}{Colors.ENDC}"
     )
+    print(f"{Symbols.INFO} Command history enabled (↑/↓ arrows, Ctrl+R for search)")
 
     # Load vector config
     config = load_vector_config()
@@ -505,9 +537,29 @@ def interactive_mode(verbose=False):
         f"{Symbols.DATABASE} Using Pinecone index: {Colors.CYAN}{config['pinecone_index']}{Colors.ENDC}"
     )
 
+    # Load dataset info
+    datasets = load_dataset_info()
+    print(
+        f"{Symbols.INFO} Available datasets: {', '.join([d['name'] for d in datasets])}"
+    )
+
     while True:
-        # Get user input
-        query = input(f"\n{Colors.BOLD}{Colors.CYAN}Enter your question: {Colors.ENDC}")
+        # Get user input with readline (supports history navigation)
+        try:
+            query = input(
+                f"\n{Colors.BOLD}{Colors.CYAN}Enter your question: {Colors.ENDC}"
+            )
+        except EOFError:
+            # Handle Ctrl+D
+            print("\n")
+            print(
+                f"\n{Symbols.SUCCESS}{Colors.GREEN}Exiting interactive mode.{Colors.ENDC}"
+            )
+            break
+        except KeyboardInterrupt:
+            # Handle Ctrl+C
+            print("\n")
+            continue
 
         # Check for special commands
         if query.lower() in ["exit", "quit"]:
@@ -519,12 +571,6 @@ def interactive_mode(verbose=False):
             verbose_mode = not verbose_mode
             print(
                 f"{Symbols.INFO} Verbose mode: {Colors.GREEN if verbose_mode else Colors.RED}{'on' if verbose_mode else 'off'}{Colors.ENDC}"
-            )
-            continue
-        elif query.lower().startswith("model "):
-            model = query.split(" ", 1)[1].strip()
-            print(
-                f"{Symbols.ROCKET} Switched to model: {Colors.GREEN}{model}{Colors.ENDC}"
             )
             continue
         elif not query.strip():
@@ -559,27 +605,30 @@ def interactive_mode(verbose=False):
 
 def run_example_questions(verbose=False):
     """Run a set of example questions."""
-    questions = [
-        # Pokemon questions
-        "What are the starter Pokemon in Generation I?",
-        "Tell me about the legendary birds in Pokemon.",
-        "What types are effective against Ghost Pokemon?",
-        # Space questions
-        "What are the planets in our solar system?",
-        "Explain the different types of galaxies.",
-        "What are the main types of black holes?",
-        # History questions
-        "What were the key periods of Ancient Rome?",
-        "What were the main features of the Renaissance?",
-        "How did the Industrial Revolution change society?",
-        # Cross-dataset question
-        "Compare the structure of our solar system with the structure of Ancient Rome.",
-    ]
+    # Load dataset info to get available datasets
+    datasets = load_dataset_info()
+
+    # Generate example questions based on available datasets
+    questions = []
+
+    for dataset in datasets:
+        dataset_name = dataset["name"]
+        # Add a generic question for each dataset
+        questions.append(f"What information do you have about {dataset_name}?")
+
+        # If we have multiple datasets, add a cross-dataset question
+        if len(datasets) > 1 and len(questions) == len(datasets):
+            dataset_names = [d["name"] for d in datasets]
+            questions.append(f"Compare {' and '.join(dataset_names)}.")
 
     print(
         f"\n{Colors.BOLD}{Colors.HEADER}{'=' * 25} Running Example Questions {'=' * 25}{Colors.ENDC}"
     )
     print(f"{Colors.BOLD}{Colors.HEADER}{'=' * 76}{Colors.ENDC}\n")
+
+    # Always use gpt-4o-mini
+    model = "gpt-4o-mini"
+    print(f"{Symbols.ROCKET} Using model: {Colors.GREEN}{model}{Colors.ENDC}")
 
     for i, question in enumerate(questions, 1):
         print(
@@ -588,7 +637,7 @@ def run_example_questions(verbose=False):
         print(f"{Colors.CYAN}'{question}'{Colors.ENDC}")
         print(f"{Colors.YELLOW}{'-' * 50}{Colors.ENDC}")
 
-        answer, source_files = process_query(question, verbose=verbose)
+        answer, source_files = process_query(question, model, verbose)
 
         print(f"\n{Colors.BOLD}{Colors.GREEN}{'=' * 50}{Colors.ENDC}")
         print(f"{Colors.BOLD}{Colors.BLUE}Answer:{Colors.ENDC}")

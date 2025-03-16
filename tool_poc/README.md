@@ -1,152 +1,112 @@
-# Dataset Tool Calling POC
+# Vector Database Tool Calling POC
 
-This project demonstrates how to use OpenAI's tool calling feature to answer questions from specialized datasets. The system loads datasets, creates tools for each dataset, and ensures that responses only contain information from the datasets.
+This project demonstrates how to use OpenAI's tool calling capabilities with a Pinecone vector database to create a system that can answer questions based on specialized datasets.
 
 ## Datasets
 
-The project includes several example datasets:
+The system dynamically loads datasets from the `datasets/` directory. Each dataset is a collection of text files that contain information on a specific topic.
 
-- **Pokemon**: Information about Pokemon, including starters, legendary Pokemon, and type effectiveness.
-- **Space**: Information about space, including planets, galaxies, and black holes.
-- **History**: Information about historical periods, including Ancient Rome, the Renaissance, and the Industrial Revolution.
+To add a new dataset:
+1. Create a new folder in the `datasets/` directory (e.g., `datasets/newdataset/`)
+2. Add text files (.txt or .md) to the folder with relevant information
+3. Run the setup script to process the new dataset
 
 ## Setup
 
-1. Clone this repository
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-3. Create a `.env` file with your OpenAI API key:
-   ```
-   OPENAI_API_KEY=your_api_key_here
-   PINECONE_API_KEY=your_pinecone_api_key_here
-   ```
-
-## Usage
-
-### Local File Version
-
-Run the interactive script to ask questions about the datasets:
-
+1. Install the required dependencies:
 ```
-python interactive.py
+pip install -r requirements.txt
 ```
 
-You can also run a set of example questions:
-
+2. Create a `.env` file with your API keys:
 ```
-python interactive.py --examples
-```
-
-Enable verbose mode to see detailed information about the process:
-
-```
-python interactive.py --verbose
+OPENAI_API_KEY=your_openai_api_key
+PINECONE_API_KEY=your_pinecone_api_key
 ```
 
-Or combine both flags:
-
-```
-python interactive.py --examples --verbose
-```
-
-### Vector Database Version
-
-This project also includes a vector database implementation using Pinecone. This approach chunks the documents, creates embeddings, and stores them in a vector database for semantic search.
-
-#### Step 1: Set up the Vector Database
-
-First, run the setup script to process the datasets and create a Pinecone index:
-
+3. Run the setup script to process datasets and create the vector database:
 ```
 python vector_setup.py
 ```
 
-You can specify a custom index name:
+This will:
+- Scan the `datasets/` directory for available datasets
+- Generate descriptions for each dataset using GPT-4o-mini
+- Chunk the text files and create embeddings
+- Upload the embeddings to a Pinecone vector database
+- Save the dataset information and configuration for the interactive script
 
-```
-python vector_setup.py --index my-custom-index
-```
+## Usage
 
-This script will:
-1. Load all datasets
-2. Chunk the documents using LangChain's RecursiveCharacterTextSplitter
-3. Create embeddings using OpenAI's embedding model
-4. Store the chunks in a Pinecone index
-5. Save the configuration to `vector_config.json`
-
-#### Step 2: Use the Vector Database Interactive Script
-
-Once the vector database is set up, you can use the vector-based interactive script:
-
+Run the interactive script to query the datasets:
 ```
 python vector_interactive.py
 ```
 
-Just like the file-based version, you can run example questions and enable verbose mode:
-
+You can also run example questions for all datasets:
 ```
 python vector_interactive.py --examples
+```
+
+### Verbose Mode
+
+Enable verbose mode to see detailed information about the process:
+```
 python vector_interactive.py --verbose
+```
+
+Or with example questions:
+```
 python vector_interactive.py --examples --verbose
 ```
 
-## Features
-
-- **Dataset Loading**: Automatically loads datasets from the `datasets` directory.
-- **Tool Creation**: Creates tools for each dataset to use with OpenAI's tool calling feature.
-- **Validation**: Ensures that responses only contain information from the datasets.
-- **Source Tracking**: Shows which file(s) in a dataset contained the answer.
-- **Vector Search**: The vector database version uses semantic search to find the most relevant chunks.
-- **Colorful Output**: Uses ANSI color codes and Unicode symbols for a better user experience.
-
-## Verbose Mode
-
-Enabling verbose mode provides additional information about the process:
-
+Verbose mode provides insights into:
 - Dataset loading
 - Tool selection
+- Vector search results
 - Validation process
 - Timing information
-- Vector search details (in the vector database version)
+
+## How It Works
+
+1. The system loads dataset information and creates tool definitions for each dataset
+2. When a user asks a question, GPT-4o-mini determines which dataset tool to use
+3. The system performs a vector search in Pinecone to find relevant information
+4. GPT-4o-mini generates an answer based strictly on the retrieved information
+5. A validation step ensures the answer only contains information from the dataset
+
+## Model
+
+This system uses the GPT-4o-mini model for all operations, including:
+- Determining which dataset to use
+- Generating final answers
+- Validating responses
+- Creating dataset descriptions
+
+## Robust JSON Handling
+
+The system includes robust JSON parsing for LLM-generated responses:
+
+- **Trailing Comma Removal**: Automatically removes trailing commas that would make JSON invalid
+- **Code Block Extraction**: Extracts JSON from markdown code blocks
+- **Object Extraction**: Identifies and extracts JSON objects from surrounding text
+- **Error Handling**: Provides detailed error messages and fallbacks when JSON parsing fails
+- **Structured Output**: Instructs the LLM to return properly formatted JSON
+
+This ensures reliable operation even when the LLM doesn't produce perfectly formatted JSON.
 
 ## Adding New Datasets
 
 To add a new dataset:
+1. Create a new folder in the `datasets/` directory
+2. Add text files (.txt or .md) with relevant information
+3. Run the setup script again to process the new dataset:
+```
+python vector_setup.py
+```
 
-1. Create a new directory in the `datasets` directory
-2. Add a `metadata.json` file with the following structure:
-   ```json
-   {
-     "name": "YourDatasetName",
-     "description": "Description of your dataset",
-     "files": [
-       {
-         "filename": "file1.txt",
-         "description": "Description of file1"
-       },
-       {
-         "filename": "file2.txt",
-         "description": "Description of file2"
-       }
-     ]
-   }
-   ```
-3. Add the files referenced in the metadata file
-
-## Vector Database vs. Local Files
-
-The project provides two approaches for accessing dataset information:
-
-1. **Local Files** (`interactive.py`): Reads directly from text files on disk. Simple but less scalable.
-2. **Vector Database** (`vector_setup.py` and `vector_interactive.py`): Uses Pinecone to store and retrieve chunks based on semantic similarity. More scalable and provides better results for complex queries.
-
-### Advantages of the Vector Database Approach:
-
-- **Semantic Search**: Finds relevant information based on meaning, not just exact matches
-- **Chunking**: Breaks documents into smaller pieces for more precise retrieval
-- **Scalability**: Can handle much larger datasets efficiently
-- **Cross-Document Retrieval**: Can find related information across multiple files
-
-When working with large datasets or complex queries, the vector database approach is recommended. 
+The system will automatically:
+- Detect the new dataset
+- Generate appropriate descriptions
+- Create embeddings and store them in Pinecone
+- Make the dataset available in the interactive script 
