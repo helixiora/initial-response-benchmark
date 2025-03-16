@@ -1,77 +1,126 @@
 # Dataset Tool Calling POC
 
-This proof of concept demonstrates how to use text datasets as tools with OpenAI's API. Each dataset contains a set of text files about a specific subject, and the application allows you to ask questions that get answered using these datasets as tools.
+This project demonstrates how to use OpenAI's tool calling feature to answer questions from specialized datasets. The system loads datasets, creates tools for each dataset, and ensures that responses only contain information from the datasets.
 
 ## Datasets
 
-The application includes three example datasets:
+The project includes several example datasets:
 
-1. **Pokemon** - Information about Pokemon, including starters, legendary Pokemon, and type effectiveness.
-2. **Space** - Information about celestial objects and phenomena in our universe.
-3. **History** - Information about significant historical periods and their impact on human civilization.
+- **Pokemon**: Information about Pokemon, including starters, legendary Pokemon, and type effectiveness.
+- **Space**: Information about space, including planets, galaxies, and black holes.
+- **History**: Information about historical periods, including Ancient Rome, the Renaissance, and the Industrial Revolution.
 
 ## Setup
 
 1. Clone this repository
-2. Create a virtual environment (optional but recommended):
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
+2. Install the required dependencies:
    ```
    pip install -r requirements.txt
    ```
-4. Create a `.env` file with your OpenAI API key:
+3. Create a `.env` file with your OpenAI API key:
    ```
-   cp .env.example .env
-   # Edit .env to add your OpenAI API key
+   OPENAI_API_KEY=your_api_key_here
+   PINECONE_API_KEY=your_pinecone_api_key_here
    ```
 
 ## Usage
 
-### Interactive Mode
+### Local File Version
 
-Start an interactive session for querying datasets:
+Run the interactive script to ask questions about the datasets:
 
-```bash
+```
 python interactive.py
 ```
 
-In interactive mode, you can:
-- Ask questions about any dataset
-- Type `verbose` to toggle verbose mode (shows more details about the process)
-- Type `model <name>` to change the OpenAI model (e.g., `model gpt-3.5-turbo`)
-- Type `exit` or `quit` to end the session
+You can also run a set of example questions:
 
-### Run Example Questions
-
-Run a set of predefined example questions:
-
-```bash
+```
 python interactive.py --examples
 ```
 
-## How It Works
+Enable verbose mode to see detailed information about the process:
 
-1. The application loads all datasets from the `datasets` directory.
-2. Each dataset becomes a tool that the LLM can use to answer questions.
-3. When you ask a question, the LLM determines which dataset(s) to use.
-4. The appropriate dataset tool is called to retrieve information.
-5. The LLM uses this information to formulate a response.
-6. A validation step ensures the response only contains information from the dataset.
+```
+python interactive.py --verbose
+```
+
+Or combine both flags:
+
+```
+python interactive.py --examples --verbose
+```
+
+### Vector Database Version
+
+This project also includes a vector database implementation using Pinecone. This approach chunks the documents, creates embeddings, and stores them in a vector database for semantic search.
+
+#### Step 1: Set up the Vector Database
+
+First, run the setup script to process the datasets and create a Pinecone index:
+
+```
+python vector_setup.py
+```
+
+You can specify a custom index name:
+
+```
+python vector_setup.py --index my-custom-index
+```
+
+This script will:
+1. Load all datasets
+2. Chunk the documents using LangChain's RecursiveCharacterTextSplitter
+3. Create embeddings using OpenAI's embedding model
+4. Store the chunks in a Pinecone index
+5. Save the configuration to `vector_config.json`
+
+#### Step 2: Use the Vector Database Interactive Script
+
+Once the vector database is set up, you can use the vector-based interactive script:
+
+```
+python vector_interactive.py
+```
+
+Just like the file-based version, you can run example questions and enable verbose mode:
+
+```
+python vector_interactive.py --examples
+python vector_interactive.py --verbose
+python vector_interactive.py --examples --verbose
+```
+
+## Features
+
+- **Dataset Loading**: Automatically loads datasets from the `datasets` directory.
+- **Tool Creation**: Creates tools for each dataset to use with OpenAI's tool calling feature.
+- **Validation**: Ensures that responses only contain information from the datasets.
+- **Source Tracking**: Shows which file(s) in a dataset contained the answer.
+- **Vector Search**: The vector database version uses semantic search to find the most relevant chunks.
+- **Colorful Output**: Uses ANSI color codes and Unicode symbols for a better user experience.
+
+## Verbose Mode
+
+Enabling verbose mode provides additional information about the process:
+
+- Dataset loading
+- Tool selection
+- Validation process
+- Timing information
+- Vector search details (in the vector database version)
 
 ## Adding New Datasets
 
 To add a new dataset:
 
-1. Create a new directory under `datasets/`
-2. Add text files with information
-3. Create a `metadata.json` file with the following structure:
+1. Create a new directory in the `datasets` directory
+2. Add a `metadata.json` file with the following structure:
    ```json
    {
-     "name": "Dataset Name",
-     "description": "Description of the dataset",
+     "name": "YourDatasetName",
+     "description": "Description of your dataset",
      "files": [
        {
          "filename": "file1.txt",
@@ -84,5 +133,20 @@ To add a new dataset:
      ]
    }
    ```
+3. Add the files referenced in the metadata file
 
-The application will automatically detect and load the new dataset as a tool. 
+## Vector Database vs. Local Files
+
+The project provides two approaches for accessing dataset information:
+
+1. **Local Files** (`interactive.py`): Reads directly from text files on disk. Simple but less scalable.
+2. **Vector Database** (`vector_setup.py` and `vector_interactive.py`): Uses Pinecone to store and retrieve chunks based on semantic similarity. More scalable and provides better results for complex queries.
+
+### Advantages of the Vector Database Approach:
+
+- **Semantic Search**: Finds relevant information based on meaning, not just exact matches
+- **Chunking**: Breaks documents into smaller pieces for more precise retrieval
+- **Scalability**: Can handle much larger datasets efficiently
+- **Cross-Document Retrieval**: Can find related information across multiple files
+
+When working with large datasets or complex queries, the vector database approach is recommended. 
