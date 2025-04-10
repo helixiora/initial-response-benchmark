@@ -25,9 +25,13 @@ You will receive a prompt and classify it into only one of the following five ca
 4. **Meta Data**: The user is asking about the data they provided.
    - Examples: "How many PDFs did I give you?", "Summarize the documents I uploaded."
 
-5. **Informational**: Any prompt that does not fit the above categories and requires standard document indexing or retrieval.
+5. **Informational**: Any prompt that does not fit the above categories and requires standard document indexing or 
+retrieval.
 
-Respond with only the category name.
+Respond with only the category name. In the case that the prompt is an error, add a friendly message which states
+what you did not understand depending on the type of error alongside the category name in the format "<Category name>. 
+<Error message>". In the case the prompt is a  conversational one, add an appropriate response
+to the conversation alongside the category name in the format "<Category name>. <Conversation answer>".
 """
 
 def get_response(user_prompt):
