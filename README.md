@@ -4,7 +4,8 @@ This script tests the response times of different OpenAI models by sending the s
 
 ## Prerequisites
 
-- Python 3.x (if not installed, on macOS use: `brew install python3`)
+- Python 3.11 or newer. The current Torch and Transformers dependencies require Python 3.11.
+  On macOS, install a supported version with `brew install python@3.11`.
 - pip (comes with Python3)
 
 ## Setup
@@ -13,8 +14,9 @@ This script tests the response times of different OpenAI models by sending the s
 
 2. Create and activate a virtual environment:
    ```bash
-   # Create virtual environment
-   python3 -m venv venv
+   # Use Python 3.11 or a newer supported interpreter.
+   python3.11 -m venv venv
+   # On Windows, use: py -3.11 -m venv venv
 
    # Activate virtual environment
    # On macOS/Linux:
@@ -25,7 +27,7 @@ This script tests the response times of different OpenAI models by sending the s
 
 3. Install the required dependencies:
    ```bash
-   pip install -r requirements.txt
+   python -m pip install -r requirements.txt
    ```
 
 4. Copy the `.env.example` file to `.env`:
@@ -94,6 +96,6 @@ deactivate
 ## Troubleshooting
 
 If you see "command not found" errors:
-1. Make sure Python3 is installed: `which python3`
-2. If Python3 is not found, on macOS install it with: `brew install python3`
-3. Always use `python3` instead of `python` to ensure you're using Python 3
+1. Check the interpreter version: `python3 --version` (Python 3.11 or newer is required).
+2. If a supported interpreter is missing, on macOS install it with: `brew install python@3.11`
+3. Create the virtual environment with `python3.11` or a newer interpreter, then use the activated environment's `python`.
