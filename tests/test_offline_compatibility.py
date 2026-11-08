@@ -1,7 +1,9 @@
 """Validate tool helpers without model downloads, credentials, or provider calls."""
 
 import importlib
-from contextlib import ExitStack
+import importlib.util
+import io
+from contextlib import ExitStack, redirect_stdout
 import os
 from pathlib import Path
 import socket
@@ -61,6 +63,25 @@ class OfflineToolCompatibilityTests(unittest.TestCase):
             found = self.setup.scan_datasets_directory(directory)
         self.assertEqual(len(found), 1)
         self.assertEqual(found[0]["files"], ["notes.md"])
+
+    def test_interactive_mode_without_readline(self):
+        path = self.repo / "tool_poc" / "vector_interactive.py"
+        spec = importlib.util.spec_from_file_location("interactive_without_readline", path)
+        module = importlib.util.module_from_spec(spec)
+        with patch.dict(sys.modules, {"readline": None}):
+            spec.loader.exec_module(module)
+        self.assertIsNone(module.readline)
+        with (
+            patch.object(module, "load_vector_config", return_value={"pinecone_index": "offline"}),
+            patch.object(module, "load_dataset_info", return_value=[]),
+            patch("builtins.input", return_value="quit"),
+            patch("atexit.register") as register,
+            redirect_stdout(io.StringIO()) as output,
+        ):
+            module.interactive_mode()
+        register.assert_not_called()
+        self.assertIn("offline", output.getvalue())
+        self.assertNotIn("Command history enabled", output.getvalue())
 
     def test_json_tool_response_parses_without_provider_calls(self):
         self.assertEqual(self.interactive.safe_json_parse('{"answer": "synthetic"}'), {"answer": "synthetic"})

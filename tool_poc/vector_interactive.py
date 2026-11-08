@@ -10,7 +10,10 @@ import time
 import sys
 import argparse
 import re
-import readline
+try:
+    import readline
+except ImportError:  # Optional terminal history support, unavailable on Windows.
+    readline = None
 from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone
@@ -509,27 +512,26 @@ def interactive_mode(verbose=False):
     model = "gpt-4o-mini"
     verbose_mode = verbose
 
-    # Set up command history
-    history_file = os.path.join(os.path.expanduser("~"), ".vector_interactive_history")
-    try:
-        readline.read_history_file(history_file)
-        # Set history file size
-        readline.set_history_length(1000)
-    except FileNotFoundError:
-        # History file doesn't exist yet
-        pass
+    # Terminal history is optional; plain input remains available on Windows.
+    if readline is not None:
+        history_file = os.path.join(os.path.expanduser("~"), ".vector_interactive_history")
+        try:
+            readline.read_history_file(history_file)
+            readline.set_history_length(1000)
+        except FileNotFoundError:
+            pass
 
-    # Save history on exit
-    import atexit
+        import atexit
 
-    atexit.register(readline.write_history_file, history_file)
+        atexit.register(readline.write_history_file, history_file)
 
     # Print initial info
     print(f"{Symbols.ROCKET} Using model: {Colors.GREEN}{model}{Colors.ENDC}")
     print(
         f"{Symbols.INFO} Verbose mode: {Colors.GREEN if verbose_mode else Colors.RED}{'on' if verbose_mode else 'off'}{Colors.ENDC}"
     )
-    print(f"{Symbols.INFO} Command history enabled (↑/↓ arrows, Ctrl+R for search)")
+    if readline is not None:
+        print(f"{Symbols.INFO} Command history enabled (↑/↓ arrows, Ctrl+R for search)")
 
     # Load vector config
     config = load_vector_config()
