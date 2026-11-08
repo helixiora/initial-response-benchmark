@@ -1,6 +1,6 @@
-python-dotenv>=1.0.0
-click>=8.1.7
-openai>=1.10.0
-pinecone>=3.0.0
-langchain>=0.1.0
-langchain-text-splitters>=0.0.1 
+python-dotenv>=1.2.4
+click>=8.5.0
+openai>=3.46.0
+pinecone>=10.3.0
+langchain>=1.4.9
+langchain-text-splitters>=1.1.3 
