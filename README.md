@@ -40,6 +40,20 @@ This script tests the response times of different OpenAI models by sending the s
 
 ## Usage
 
+### Offline dependency compatibility checks
+
+After installing both `requirements.txt` and `tool_poc/requirements.txt`, run:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+These checks use synthetic text and mocked provider clients, block network
+connections, and do not download models or make paid API calls. They cover the
+vector-tool imports, text chunking, source metadata, and local JSON parsing.
+The benchmark scripts at the repository root contact real providers and are
+not an offline test suite.
+
 Make sure your virtual environment is activated (you should see `(venv)` at the start of your prompt), then run the script:
 ```bash
 python3 test_response_times.py
@@ -82,4 +96,4 @@ deactivate
 If you see "command not found" errors:
 1. Make sure Python3 is installed: `which python3`
 2. If Python3 is not found, on macOS install it with: `brew install python3`
-3. Always use `python3` instead of `python` to ensure you're using Python 3 
+3. Always use `python3` instead of `python` to ensure you're using Python 3
