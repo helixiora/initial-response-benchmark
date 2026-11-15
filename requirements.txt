@@ -1,9 +1,9 @@
-transformers>=5.22.1
+transformers>=5.22.2
 torch>=2.15.0
 colorama>=0.4.6
 python-dotenv>=1.2.4 
 requests>=2.34.2 
 tiktoken>=0.14.0
-openai>=3.46.0 
+openai>=3.49.0 
 dotenv~=0.9.9
 pinecone~=10.3.0
